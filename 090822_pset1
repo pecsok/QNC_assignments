@@ -1,0 +1,44 @@
+Exercise #1: If someone gets a positive test, is it "statistically significant" at the p<0.05 level? Why or why not?
+It's not significant because it is at and not below the signficance threshold. "Trending toward significance" perhaps.
+
+Exercise #2. Now we're gonna look at how prior probability affects the significance of a positive test result. Conceptually, tests are only meaningful if the false positive rate is not way higher than the actual disease prevalence.
+
+import scipy.stats as st
+import numpy as np
+
+N = 1000
+false_positive_rate = 0.05
+fas_negative_rate = 0
+prop_infected = 0.5
+
+is_infected = st.binom.rvs(1, prop_infected, size = N)
+num_infected = is_infected.sum()
+
+
+is_positive = np.copy(is_infected)
+
+
+is_positive[is_infected==0] = st.binom.rvs(1,false_positive_rate, size=N - num_infected)
+
+p_is_infected_given_is_positive = (np.logical_and(is_infected==1, is_positive==1).sum())/is_positive
+
+print(f"The prob of being infected is (p_is_infected_given_is_positive))
+
+
+
+
+infected_proportions = np.arrange(0.0,1.1,0.1)
+
+for rate in infected_proportions:
+is_infected = st.binom.vs(1,rate,size=1)
+
+is_positive = np.copy(is_infected)
+is_positive[is_infected==0] = st.binom.rvs(1,false_positive_rate, size=N - num_infected)
+p_is_infected_given_is_positive = (np.logical_and(is_infected==1, is_positive==1).sum())/p_is_infected_given_is_positive
+
+
+p_data_given_hypothesis = 1 - false_positive_rate
+p_hypothesis = rate
+p_data = is_positive.sum()/is_positive.size
+
+p_hypothesis_given_data = (p_data_given_hypothesis* p_hypothesis)/ p_data
