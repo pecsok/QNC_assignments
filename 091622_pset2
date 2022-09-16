@@ -1,0 +1,73 @@
+Modeling normal distribution of precentral gyrus glucest in Cember et al 2022 (Fig 2)
+
+
+# Import packages
+import matplotlib.pyplot as plt
+import numpy as np
+import scipy.stats as st
+
+# Let's compare simulated and theoretical Gaussians
+mu = 9
+sigma = 2
+N = 275
+
+# Get samples
+samples = np.random.normal(mu, sigma, N)
+
+# plot histogram for a given number of bins (using trapz to approximate pdf)
+nbins = 20
+counts, edges = np.histogram(samples, bins=nbins)
+xaxis = (edges[1:] + edges[:-1])/2
+n_pdf = np.divide(counts, np.trapz(counts, xaxis))
+plt.bar(xaxis, n_pdf)
+
+# Show theoretical pdf in red
+plt.plot(xaxis, st.norm.pdf(xaxis, mu, sigma), 'r-', linewidth=2)
+
+# labels, ets
+plt.title(f'Gaussian pdf, mu={mu:.2f}, sigma={sigma:.2f}')
+plt.xlabel('Value')
+plt.ylabel('Probability')
+plt.legend(['Simulated', 'Theoretical'])
+plt.show()
+
+
+This distribution looks pretty similar to the combined pre- and post-cTBS distribution we see in the figure!
+
+
+
+
+# Some summary statistics
+# 1. The sample mean
+print(f'Sample mean = {np.mean(samples):.3f}')
+
+# 2. The expected value of the empirical distribution: the sum of probability x value per bin. This should be similar to the sample mean, but recognize that we lost some information from the binning (i.e., use more bins and this should get closer to the sample mean)
+print(f'Expected value of empirical distribution = {np.sum(np.prod([xaxis, np.diff(edges), n_pdf], axis=0)):.3f}')
+
+# 3. The expected value of the theoretical distribution
+print(f'Expected value of the theoretical distribution = {np.sum(np.prod([xaxis, np.diff(edges), st.norm.pdf(xaxis, mu, sigma)], axis=0)):.3f}')
+
+# Now standardize ("z-score") the samples by subtracting the mean and dividing by the STD
+# The harder way
+zSamples = np.divide(samples-np.mean(samples), np.std(samples))
+
+# The easier way
+z2Samples = st.zscore(samples)
+
+# Check that they are the same
+print(f'Number of different values = {np.count_nonzero(zSamples-z2Samples)}')
+
+# Show the distribution of z-scored values
+counts, edges = np.histogram(z2Samples, bins=nbins)
+xaxis = (edges[1:] + edges[:-1])/2
+plt.bar(xaxis, np.divide(counts, np.trapz(counts, xaxis)))
+
+# Show theoretical "standard normal" pdf in red
+plt.plot(xaxis, st.norm.pdf(xaxis), 'r-', linewidth=2)
+
+# labels, ets
+plt.title(f'Gaussian pdf, mu={np.mean(zSamples):.2f}, sigma={np.std(zSamples):.2f}')
+plt.xlabel('Value')
+plt.ylabel('Probability')
+plt.legend(['Simulated', 'Theoretical'])
+plt.show()
