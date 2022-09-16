@@ -1,4 +1,38 @@
-Bernoulli distribution:
+GAUSSIAN DISTRIBUTION
+
+# Import packages
+import matplotlib.pyplot as plt
+import numpy as np
+import scipy.stats as st
+
+# Let's compare simulated and theoretical Gaussians
+mu = 5 # mean
+sigma = 10 #stdev
+N = 10000
+
+# Get samples
+samples = np.random.normal(mu, sigma, N)
+
+# plot histogram for a given number of bins (using trapz to approximate pdf)
+nbins = 100
+counts, edges = np.histogram(samples, bins=nbins)
+xaxis = (edges[1:] + edges[:-1])/2
+n_pdf = np.divide(counts, np.trapz(counts, xaxis)) # Here, we're dividing by total number of values i.e. AUC to create probability distribution
+plt.bar(xaxis, n_pdf)
+
+# Show theoretical pdf in red
+plt.plot(xaxis, st.norm.pdf(xaxis, mu, sigma), 'r-', linewidth=2)
+
+# labels, ets
+plt.title(f'Gaussian pdf, mu={mu:.2f}, sigma={sigma:.2f}')
+plt.xlabel('Value')
+plt.ylabel('Probability')
+plt.legend(['Simulated', 'Theoretical'])
+plt.show()
+
+
+BERNOULLI DISTRIBUTION: (p = probability of trial outcome)
+Binomial distribution is n repeats of a Bernoulli trial.
 The Bernoulli distribution is a discrete probability distribution that describes the probability of obtaining each of just two possible outcomes, 
 a "success" with probability p and a "failure" with probability q = 1 – p. A Bernoulli trial describes a single experiment with binary outcomes 
 described by a Bernoulli distribution, in which the probabilities of success and failure are fixed. An example of a Bernoulli trial is a coin flip, 
@@ -45,3 +79,27 @@ print(f'{(outcomes == False).sum()} zeros, {(outcomes == True).sum()} ones, simu
 outcome using rand = True
 outcome using binornd = True
 3075 zeros, 6925 ones, simulated p = 0.6925, empirical p = 0.7
+
+
+BINOMIAL DISTRIBUTION: (p,n) 
+The binomial distribution is a discrete probability distribution that describes the probability of obtaining exactly k successes out of n Bernoulli trials,
+which are individual binary outcomes that each have a success probability of p. For example, if you flip a coin 10 times, what is the probability that it 
+will come up heads 0, 1, 2, ... 10 times. Think about p(hit) at particular stim strength. You have a sigmoidal curve with error bars on it.
+
+= Probability of obtaining k successes in n trials given a constant probability of success p on each trial, which is defined as
+Think about 10 coin flips. 11 possibilities - heads 0,1,2...10 times 
+
+# Import pkgs
+import numpy as np
+import random as rnd
+import collections
+import matplotlib.pyplot as plt
+import time
+import scipy.stats as st
+
+from scipy.stats import bernoulli, binom, poisson, chi2
+from IPython.display import clear_output
+from operator import itemgetter
+from statsmodels.stats import proportion
+from numpy import matlib
+
