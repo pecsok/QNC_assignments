@@ -1,0 +1,59 @@
+Compute a confidence interval for gaussian distribution with sd: =2, n=5, 10, 20, 40, 80, 160, 1000 at a 95% confidence level.
+
+Method 1:
+
+Method 2:
+Use a student's t distribution. 
+Instead
+
+Method 3:
+
+Method 4:
+
+
+# Install initial packages
+import matplotlib.pyplot as plt
+import numpy as np
+import scipy.stats as st
+from scipy.stats import norm
+import matplotlib.pyplot as plt
+
+# Let's compare simulated and theoretical Gaussians
+mu = 10
+sigma = 2
+N = 5
+
+# Get samples
+samples = np.random.normal(mu, sigma, N)
+
+# Compute z scores
+z2Samples = st.zscore(samples)
+
+# Compute SEM
+mean = np.mean(samples)
+sem = sigma/(N**0.5)
+CI_min = mean - (sem * 1.96)
+CI_max = mean + (sem * 1.96)
+**** FIgure out how to use scipy's norm function!!
+
+
+print(f' {mean,sem,CI_min,CI_max}')
+
+
+METHOD 2:
+Using T Distribution
+
+
+CI_max = mean + t_nminus1(sigma)/(N^.5)
+CI_min = mean - t_nminus1(sigma)/(N^.5)
+
+
+METHOD 3: 
+Bootstrapping
+
+res = bootstrap(data, np.std, confidence_level=0.9,random_state=samples)
+print(res.confidence_interval)
+
+
+
+
