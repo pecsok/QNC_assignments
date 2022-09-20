@@ -1,0 +1,85 @@
+Binomial problem set. 
+
+
+Exercise 1
+
+Assume that there are 10 quanta available in a nerve terminal, and for a given release event each is released with a probability of 0.2. 
+For one such event, what is the probability that 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, or 10 quanta will be released?
+
+If there are n available quanta in a presynaptic terminal, and each is released with probability p, then the number of quanta
+that are actually released should follow a binomial distribution with parameters n and p.
+
+0: ~.1
+1: ~.28
+2: ~.3
+3: ~1.7
+4: ~.1
+5: ~.04
+6: ~.01
+7-10: <.01. 
+
+*Need to troubleshoot to figure out how to print value labels!
+
+
+Exercise 2:
+
+With 14 quanta and p = 0.1, probability of 8 quanta being released is essentially 0. 
+When p = 0.7, the probability of 8 quanta = 0.126
+p = .1; 0
+p = .2; .001
+p = .3; .024
+p = .4; .088
+p = .5; .172
+p = .6; .199
+p = .7; .120
+
+Solution: print(f'counts = {normalized_counts}f')
+
+
+Exercise 3: 
+5 quanta
+p=0.1
+Two experiments? I'm very confused by this question. I will take the probability of 5 quanta from the previous question
+as the first experiment. 
+
+p(first exp) = 0
+p(second exp) = .007
+Total likelihood =.007
+Total log-likelihood = -2.15. 
+
+I think I have done something wrong here?
+
+Likelihood function for 5 quanta release with n = 14
+p = .1; .007
+p = .2; .102
+p = .3; .182
+p = .4; .192
+p = .5; .13
+p = .6; .008
+p = .7; 0
+p = .8,.9: 0
+
+Log-likelihood function for deciles:
+p = .1; .007
+p = .2; .102
+p = .3; .182
+p = .4; .192
+p = .5; .13
+p = .6; .008
+p = .7; 0
+p = .8,.9: 0
+
+Maximum value: .192
+Higher resolution: find true max. p=.35, max is .222
+Effect of sample size: Not sure what we mean here. If its number of experiments, fewer will make estimate less accurate
+
+Exercise 4
+Based on results above, p =~ 0.4
+
+Exercise 5:
+Change temp. 7 quantal events from 14 quanta. compute p 
+p = 0.5?
+Probability of getting 7 quanta given p stayed at 0.3: 
+p = 0.066
+With a threshold of 0.05, we cannot conclude that temperature had an effect.
+
