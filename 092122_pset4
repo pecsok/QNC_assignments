@@ -1,6 +1,17 @@
 Compute a confidence interval for gaussian distribution with sd: =2, n=5, 10, 20, 40, 80, 160, 1000 at a 95% confidence level.
 
 Method 1:
+Large n/known SD
+
+  N, mean, sem, CI_min, CI_max
+ (5, 8.399865253785684, 0.8944271909999159, 6.646787959425849, 10.15294254814552)
+ (10, 9.821928927411813, 0.6324555320336759, 8.582316084625809, 11.061541770197817)
+ (20, 9.956047228729677, 0.4472135954999579, 9.07950858154976, 10.832585875909594)
+ (40, 10.080761554794861, 0.31622776601683794, 9.460955133401859, 10.700567976187864)
+ (80, 10.346440766514654, 0.22360679774997896, 9.908171442924695, 10.784710090104612)
+ (160, 9.93675576764764, 0.15811388300841897, 9.626852556951139, 10.24665897834414)
+ (1000, 10.023736073286756, 0.06324555320336758, 9.899774789008156, 10.147697357565356)
+ Next step, figure out how to format output as more readable table.
 
 Method 2:
 Use a student's t distribution. 
@@ -17,11 +28,13 @@ import numpy as np
 import scipy.stats as st
 from scipy.stats import norm
 import matplotlib.pyplot as plt
+from scipy.stats import bootstrap
 
-# Let's compare simulated and theoretical Gaussians
+# Create Gaussian distribution
+
 mu = 10
 sigma = 2
-N = 5
+for N in 5 10 20 40 80 160 1000:
 
 # Get samples
 samples = np.random.normal(mu, sigma, N)
@@ -34,26 +47,65 @@ mean = np.mean(samples)
 sem = sigma/(N**0.5)
 CI_min = mean - (sem * 1.96)
 CI_max = mean + (sem * 1.96)
-**** FIgure out how to use scipy's norm function!!
-
-
+# ** Figure out how to use scipy's norm function!!
 print(f' {mean,sem,CI_min,CI_max}')
+
 
 
 METHOD 2:
 Using T Distribution
 
+st.t.interval(alpha=0.95, df=len(samples)-1, loc=np.mean(samples), scale=st.sem(samples))
 
-CI_max = mean + t_nminus1(sigma)/(N^.5)
-CI_min = mean - t_nminus1(sigma)/(N^.5)
-
+  N, mean, CI_low, CI_high
+ (5, 10.550768549366897, (8.332930242861051, 12.768606855872742))
+ (10, 10.084352211310456, (8.978793910537581, 11.189910512083332))
+ (20, 10.296443993146193, (9.46749047100195, 11.125397515290436))
+ (40, 10.163818281325579, (9.544812657765613, 10.782823904885545))
+ (80, 9.879837655870997, (9.397897939946576, 10.361777371795418))
+ (160, 10.117941687294637, (9.76658729154105, 10.469296083048224))
+ (1000, 9.991508807373354, (9.870675813985576, 10.112341800761131))
 
 METHOD 3: 
 Bootstrapping
 
-res = bootstrap(data, np.std, confidence_level=0.9,random_state=samples)
-print(res.confidence_interval)
+data = (samples,)
+print(f' {N, np.mean, bootstrap(data, np.mean, confidence_level=0.95,random_state=1)}')
 
+(5, <function mean at 0x7f83d7a1ec20>, BootstrapResult(confidence_interval=ConfidenceInterval(low=7.955952417112151, high=10.634900115839418), standard_error=0.6622922992436261))
+ (10, <function mean at 0x7f83d7a1ec20>, BootstrapResult(confidence_interval=ConfidenceInterval(low=9.100309169792771, high=12.010185341162323), standard_error=0.7381735915774383))
+ (20, <function mean at 0x7f83d7a1ec20>, BootstrapResult(confidence_interval=ConfidenceInterval(low=9.051445321325195, high=10.806609179571536), standard_error=0.44799819195752016))
+ (40, <function mean at 0x7f83d7a1ec20>, BootstrapResult(confidence_interval=ConfidenceInterval(low=8.609961095137209, high=9.836500357727758), standard_error=0.3141261700424884))
+ (80, <function mean at 0x7f83d7a1ec20>, BootstrapResult(confidence_interval=ConfidenceInterval(low=9.900494878450607, high=10.815650191556848), standard_error=0.23354684008135804))
+ (160, <function mean at 0x7f83d7a1ec20>, BootstrapResult(confidence_interval=ConfidenceInterval(low=9.84514816953149, high=10.461885393815344), standard_error=0.15963025880839124))
+ (1000, <function mean at 0x7f83d7a1ec20>, BootstrapResult(confidence_interval=ConfidenceInterval(low=9.914793235668203, high=10.160130535644615), standard_error=0.062775351288376))
+ 
+ 
+METHOD 4:
 
+A bit confused by this one, but here's my best shot:
+# Distribution defined by mean and sigma_new = sigma/(N**.5)
+sigma_new = sigma/(N**.5)
+for N in (5,10, 20, 40, 80, 160, 1000):
 
+# Get samples
+samples = np.random.normal(mu, sigma_new, N)
 
+# Compute z scores
+z2Samples = st.zscore(samples)
+
+# Compute SEM
+mean = np.mean(samples)
+sem = sigma_new/(N**0.5)
+CI_min = mean - (sem * 1.96)
+CI_max = mean + (sem * 1.96)
+# ** Figure out how to use scipy's norm function!!
+print(f' {mean,sem,CI_min,CI_max}')
+  N, SEM, CI_min, CI_max
+ (9.98947981534079, 0.028284271247461898, 9.934042643695765, 10.044916986985815)
+ (9.975121123524158, 0.019999999999999997, 9.935921123524158, 10.014321123524157)
+ (9.990366698324127, 0.014142135623730949, 9.962648112501615, 10.01808528414664)
+ (9.994975753645118, 0.009999999999999998, 9.975375753645118, 10.014575753645119)
+ (9.997107686599483, 0.0070710678118654745, 9.983248393688227, 10.010966979510739)
+ (10.004852126871988, 0.004999999999999999, 9.995052126871988, 10.014652126871988)
+ (9.997698048614083, 0.002, 9.993778048614082, 10.001618048614084)
