@@ -1,0 +1,17 @@
+Do a post-hoc power analysis to determine the number of data samples needed to achieve 80% power for a series of possible effect sizes. 
+
+Assume that a "data sample" is simply the non-parametric correlation coefficient between pupil diameter and LC activty measured in a given session.
+
+Step 1: 
+Obtain a null distribution of these data samples:
+Compute the correlation coefficients on simulated data that are independently generated from Poisson (for LC spiking data) 
+and Gaussian (for pupil data)distributions.
+
+
+Step 2:
+
+plot n (number of data samples, corresponding to correlation coefficients measured in a single expermental session) needed for 
+80% power as a function of effect sizes.
+
+Step 3: 
+Compute power To compute power, you can use TTestIndPower
