@@ -1,0 +1,29 @@
+Code:
+import numpy as np
+import scipy.stats as st
+from statsmodels.stats.descriptivestats import sign_test
+
+
+
+Exercise 1:
+geode vs limestone
+20 rocks per group
+Wanna compare median reaction times - what test to use?
+
+Properties of distributions:
+Unpaired samples, not sure what they differ by
+Mann-whitney. Common substitute for two sample t test.
+
+
+Exercise 2:
+50 people given vaccine. test whether people aged more after getting a vaccine.
+You have a distribution of ages, but this is going to be a paired test
+For paired tests, your null is that the median of the difference distribution is zero
+Use Wilcoxon, suited for paired samples.
+
+
+Exercise 3:
+Show 40 people produce X, then have the same people see it again when wearing the device.
+Do they like it more when they're wearing the device?
+Hmm. I would say Wilcoxon because this is a paired sample (same people) and our null hypothesis is that the device 
+doesn't do anything, so the median centers on 0. 
