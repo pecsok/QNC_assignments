@@ -1,0 +1,109 @@
+Exercise
+In this exercise we will run through an example of correcting for multiple comparisons with both the 
+Benjamini-Hochberg procedure and the more conservative Bonferroni correction.
+
+###### First, simulate multiple (say, 1000) t-tests comparing two samples with equal means and standard deviations, and save the p-values.
+Obviously, at p<0.05 we expect that ~5% of the simulations to yield a "statistically significant" result (of rejecting the NULL hypothesis 
+that the samples come from distributions with equal means).
+
+# Import pkgs
+import numpy as np
+import scipy.stats as st
+import matplotlib.pyplot as plt
+from IPython.display import display, clear_output
+
+# Define unpaired measurements, same sigma, for given number of experiments
+mu_1 = 0
+mu_2 = 0
+sigma = 1
+num_experiments = 1000
+
+# Make array to store p values and t values
+t_array = []
+p_array = []
+
+for i in range(1,num_experiments):
+ 
+  # Get random samples, same n
+  N = 100
+  X1 = np.random.normal(mu_1, sigma, N)
+  X2 = np.random.normal(mu_2, sigma, N)
+  
+  # Compare to what we get from ttest (use ttest_ind for two independent samples)
+  tstat, pval = st.ttest_ind(X1, X2)
+  
+  # Add values to arrays
+  t_array.append(tstat)
+  p_array.append(pval)
+  
+  # print(f't = {tstat:.4f} (python function)')
+  # print(f'p = {pval:.4f} (python function)')
+
+# Sort and print
+p_array.sort()
+t_array.sort()
+print(f't array {t_array}')
+print(f'p array {p_array}')
+x=0
+for i in range(0,len(t_array)):
+  if p_array[i] < .05:
+    x = x+1
+print(f'Number of significant p values (no correction): {x}')
+
+
+#######  Second, once you have the simulated p-values, apply both methods to address the multiple comparisons problem.
+
+### Bonferroni Method
+# Divide α by the number of comparisons, known as the Bonferroni correction.
+alpha = .05
+alpha_new = alpha/num_experiments
+
+# Loop through p values and print the significant ones
+for i in range(0,len(t_array)):
+  if p_array[i] < alpha_new:
+    x = x+1
+
+print(f'Number of significant p values (Bonferroni): {x}')
+
+
+# Benjamini-Hochberg Method
+# Make empty array
+cv_array = []
+comparison_array = []
+x = 0
+# Calc critical value
+for i in range(0,len(t_array)):
+  cval = (i+1)/num_experiments*.05
+  cv_array.append(cval)
+  cv_array.sort()
+
+  if p_array[i] < cv_array[i]:
+    x = x+1
+
+print(f'Number of significant p values (Benji-Hoch): {x}')
+print(f'cv array {cv_array}')
+
+Output from running the code above:
+Number of significant p values (no correction): 47
+Number of significant p values (Bonferroni): 0
+Number of significant p values (Benji-Hoch): 0
+
+
+
+######### Third, set the sample 1 and sample 2 means to be 1 and 2 respectively, and re-run the exercise.
+What do you notice? What if you make the difference between means even greater?
+
+When means are 1 and 2 respectively, i.e. there is a true difference, we see that:
+Number of significant p values (no correction): 631
+Number of significant p values (Bonferroni): 46
+Number of significant p values (Benji-Hoch): 538
+
+Difference of 4:
+Number of significant p values (no correction): 999
+Number of significant p values (Bonferroni): 999
+Number of significant p values (Benji-Hoch): 999
+
+
+
+
+
