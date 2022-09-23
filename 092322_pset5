@@ -7,11 +7,149 @@ Obtain a null distribution of these data samples:
 Compute the correlation coefficients on simulated data that are independently generated from Poisson (for LC spiking data) 
 and Gaussian (for pupil data)distributions.
 
+import numpy as np
+import matplotlib.pyplot as plt
+import scipy.stats as st
+from statsmodels.stats.power import TTestIndPower
+
+p = 0.05
+pi0 = 0.5
+beta = 0.8
+
+minFPR = (p*pi0)/(p*pi0+(1-beta)*(1-pi0))
+print(f'minimum FPR = {minFPR:.1f}')
+
+# Poisson dist for LC spiking
+
+# The Poisson process is defined by a rate, lambda, of events/sec 
+#   (call it plambda to avoid Python lambda)
+plambda = 2
+
+# We will consider events generated in a given fixed interval, in seconds.
+delta_t = 10
+
+# Define an axis for computing and plotting a histogram of counts
+max_successes = 20
+bins = np.arange(-0.5, max_successes+0.5, 1)
+xaxis = (bins[1:] + bins[:-1])/2
+
+# Number of simulations
+num_simulations = 1000
+
+   
+   # Check for events in each bin    
+   #    Scale p so that it is probability of events/bin, not events/sec -- 
+   #    which can be at most =1.
+   p = np.minimum(plambda * delta_t/n, 1)
+
+   # Simulate outcomes as the number of events that occurred in the n bins 
+   #    ("tries"), given p and done N times.
+   outcomes = binom.rvs(int(n), p, size=num_simulations)
+
+   # Make a histogram of the outcomes, using the array of counts ("xaxis") 
+   #    we defined above.
+   counts, edges = np.histogram(outcomes, bins)
+
+   # Show a normalized version that is a pdf. Here counts (the x-axis of the 
+   #    histogram) is a DISCRETE variable, so we just have to add up the values
+   plt.bar(xaxis, counts/counts.sum())
+
+   # Plot the theoretical binomial pdf, for the values in xaxis and given n and p.
+   binoY = binom.pmf(xaxis, n, p)
+
+   # Show in RED
+   plt.plot(xaxis, binoY, 'ro-', linewidth=2, markersize=10)
+
+   # Get the equivalent Poisson pdf using the rate computed for the full 
+   #    interval: lambda * deltaT
+   poissY = poisson.pmf(xaxis, plambda*delta_t)
+
+   # Show in BLUE
+   plt.plot(xaxis, poissY, 'bo-', linewidth=2, markersize=10)
+
+   # Labels, etc
+   # plt.axis([xaxis([0]), xaxis([-1]), 0, np.maximum(poissY)+0.1])
+   plt.title(f'p={p:.1f}, number bins={n}, number simulations={num_simulations}')
+   plt.xlabel('Number of successes')
+   plt.xticks(np.arange(0, max_successes, 5))
+   plt.ylabel('Probability')
+   plt.legend(['Theoretical binomial', 'Theoretical Poisson', 'Simulated'], loc='upper left')
+   plt.show()
+
+# MAKE Gaussian Distribution
+
+# Let's compare simulated and theoretical Gaussians
+mu = 0
+sigma = 1
+N = 10000
+
+# Get samples
+samples = np.random.normal(mu, sigma, N)
+
+# plot histogram for a given number of bins (using trapz to approximate pdf)
+nbins = 100
+counts, edges = np.histogram(samples, bins=nbins)
+xaxis = (edges[1:] + edges[:-1])/2
+n_pdf = np.divide(counts, np.trapz(counts, xaxis))
+plt.bar(xaxis, n_pdf)
+
+# Show theoretical pdf in red
+plt.plot(xaxis, st.norm.pdf(xaxis, mu, sigma), 'r-', linewidth=2)
+
+# labels, ets
+plt.title(f'Gaussian pdf, mu={mu:.2f}, sigma={sigma:.2f}')
+plt.xlabel('Value')
+plt.ylabel('Probability')
+plt.legend(['Simulated', 'Theoretical'])
+plt.show()
+
+
+# Correlate the distributions
+correl = pearsonr(outcomes, samples)
+
 
 Step 2:
 
 plot n (number of data samples, corresponding to correlation coefficients measured in a single expermental session) needed for 
 80% power as a function of effect sizes.
 
+effect_size = st.norm.ppf(0.975)
+# We can now reproduce the first panel:
+plt.figure(figsize=(10, 5))
+mu_0 = 0
+sem = 1      # make it easy by assuming sem=1
+mu_1 = effect_size*sem
+bin_size = 0.01
+x_axis = np.arange(-4, 6+bin_size, bin_size)
+x_edges = np.arange(x_axis[0]-bin_size/2, x_axis[-1]+bin_size, bin_size)
+plt.plot([mu_0, mu_0], [0, 0.45], 'k-')
+plt.plot([mu_1, mu_1], [0, 0.45], 'k-')
+plt.plot(x_axis, st.norm.pdf(x_axis, mu_0, sem), 'b-')
+plt.plot(x_axis, st.norm.pdf(x_axis, mu_1, sem), 'b--')
+plt.xlabel('value')
+plt.ylabel('probability')
+plt.show()
+N = 100000
+
+# In each simulated experiment, we end up with a mean value that comes 
+#   from the experimental distribution, and we only reject the Null 
+#   hypothesis if the value is greater than or equal to the previous effect size:
+outcomes = np.random.normal(mu_1, sem, N)
+outcome_is_positive = outcomes >= effect_size
+print(f'{np.count_nonzero(outcome_is_positive)} positive outcomes out \
+  of {N} experiments ({np.count_nonzero(outcome_is_positive)/N*100:.2f} pct)')
+
+# We can plot these results as a normalized histogram
+counts_no_effect, _ = np.histogram(outcomes[np.logical_not(outcome_is_positive)], bins=x_edges)
+counts_effect, _    = np.histogram(outcomes[outcome_is_positive], bins=x_edges)
+counts_all, _       = np.histogram(outcomes, bins=x_edges)
+normalizer          = np.trapz(counts_all, dx=bin_size)
+
+# I am very confused about this problem set. 
+
 Step 3: 
 Compute power To compute power, you can use TTestIndPower
+
+pow = TTestIndPower(correl)
+print(f'Power of correlation is {pow}')
+
