@@ -1,0 +1,72 @@
+Exercises
+
+1. Plot x vs. y
+There is a positive correlation
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+x = (10.4,10.8,11.1,10.2,10.3,10.2,10.7,10.5,10.8,11.2,10.6,11.4)
+y = (7.4,7.6,7.9,7.2,7.4,7.1,7.4,7.2,7.8,7.7,7.8,8.3)
+
+print(f'{xy}')
+
+plt.scatter(x,y)
+plt.show()
+
+2. 
+n=len(x)
+xy=[]
+xsqu=[]
+ysqu =[]
+for num1, num2 in zip(x, y):
+  xy.append(num1 * num2)
+  xsqu.append(num1**2)
+  ysqu.append(num2**2)
+  
+rxy = n*sum(xy) - sum(x)*sum(y)/((n*sum(xsqu)-sum(x)**2)(n*sum(ysqu)-sum(y)**2))
+r = np.corrcoef(x,y)
+print(f'np.corrcoef(x,y)= {np.corrcoef(x,y)}')
+print(f'np.corrcoef(y,x)= {np.corrcoef(y,x)}')
+Same value 
+
+
+3. Standard error of rxy and confidence interval
+
+r = .87035 
+# Transform the correlation coefficient into a Fishers’ Z-score
+#r_z = np.arctanh(r)  # These two ways are equivalent
+r_z = 0.5 * np.log((1 + r) / (1 - r))  # These two ways are equivalent
+# Standard error
+se = 1 / np.sqrt(n - 3)
+# Calculate confidence interval in Z-space
+alpha = 0.05  # 95% CI
+z = st.norm.ppf(1 - alpha / 2)
+lo_z, hi_z = r_z - z * se, r_z + z * se
+# Transform back into r-space
+lo, hi = np.tanh((lo_z, hi_z))
+print(f'r = {r} (CI: {lo} - {hi})')
+
+se = ((1-r**2)/(n-2))**0.5
+print(f'se = {se}')
+
+r = 0.87035 (CI: 0.20019476162993868 - 0.9856821931917782)
+se = 0.24621681375365093
+
+
+4. Should be considered signficant given confidence interval does not overlap with zero.
+
+5. Yes, within confidence interval and se overlaps.
+
+6. Power calculation:
+  maybe calc sample size by working backward from se equation???
+  se has to be less than .5 if r is .5.
+  
+  se = 1 / np.sqrt(n - 3)
+  .5(np.sqrt(n-3) = 1
+  np.sqrt(n-3) = 2
+  n = 7
+  
+  n must be greater than 7? Need to find better way to do this.
+  
+  
